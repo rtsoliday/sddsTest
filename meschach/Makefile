@@ -110,7 +110,7 @@ SRC = bdfactor.c \
 
 ifeq ($(OS), Windows)
   OBJ = $(SRC:.c=.obj)
-  LIB = libmeschach.lib
+  LIB = meschach.lib
 else
   OBJ = $(SRC:.c=.o)
   LIB = libmeschach.a
