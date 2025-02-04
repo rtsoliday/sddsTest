@@ -38,6 +38,10 @@ ifeq ($(ARCH), aarch64)
     CFLAGS += -mcpu=native
 endif
 
+ifeq ($(ARCH), arm64)
+    CFLAGS += -mcpu=native
+endif
+
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
