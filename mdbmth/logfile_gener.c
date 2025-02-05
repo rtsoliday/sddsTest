@@ -28,9 +28,6 @@
 #    define lockf(handle, mode, nbytes) _locking(handle, mode, nbytes)
 #  endif
 #  define usleep(usecs) Sleep(usecs / 1000)
-#  if !defined(__MINGW32__)
-#    define popen(x, y) _popen(x, y)
-#  endif
 #  define F_TEST 3
 #else
 #  include <unistd.h>

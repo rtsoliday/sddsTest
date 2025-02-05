@@ -49,7 +49,7 @@ endif
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
     CCC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBMTH -I../include -openmp
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBMTH -I../include -openmp /wd4244
     CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBMTH -I../include -openmp
     LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
 endif
@@ -106,7 +106,7 @@ SRC = betai.c \
 
 ifeq ($(OS), Windows)
   OBJ = $(SRC:.c=.obj)
-  OBJ := $(OBJ:.c=.obj)
+  OBJ := $(OBJ:.cc=.obj)
   LIBRARY = mdbmth.lib
   DLL = mdbmth.dll
   EXP = mdbmth.exp
@@ -120,7 +120,7 @@ all: $(LIBRARY)
 
 ifeq ($(OS), Windows)
   $(LIBRARY): $(OBJ)
-	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ)
+	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ) ../mdblib/mdblib.lib
   %.obj: %.c
 	$(CC) $(CFLAGS) -c $<
   %.obj: %.cc
