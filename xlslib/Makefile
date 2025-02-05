@@ -26,7 +26,7 @@ ifeq ($(OS), Darwin)
     CC = clang  # Use Clang on macOS
     AR = libtool -static -o  # macOS prefers `libtool` for static libraries
     RANLIB = ranlib
-    CFLAGS += -Wno-deprecated-non-prototype
+    #CFLAGS += -Wno-deprecated-non-prototype
 endif
 
 # Adjust for Architecture
