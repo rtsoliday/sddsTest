@@ -16,6 +16,7 @@ GSLCBLAS_LIB = $(firstword $(wildcard \
 
 ifeq ($(OS), Linux)
   CC = gcc
+  CCC = g++
   AR = ar rcs
   RANLIB = ranlib
   CFLAGS = -m64 -O3 -g -Wall -fPIC -DUSE_GSL -I../../include
@@ -35,10 +36,11 @@ ifeq ($(OS), Linux)
 endif
 
 ifeq ($(OS), Darwin)
-  CC = clang -Wno-deprecated-non-prototype
+  CC = clang
+  CCC = clang++
   AR = libtool -static -o
   RANLIB = ranlib
-  CFLAGS = -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
+  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
   PROD_SYS_LIBS = $(GSL_LIB) $(GSLCBLAS_LIB) -lm
   OBJEXT = o
@@ -118,16 +120,22 @@ if2pf.obj: if2pf.c
 	$(CC) $(CFLAGS) -DEXPORT_RPNLIB  -c $<
 else
 %$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
-	$(CC) -o $@ $@.o $(LDFLAGS) -L. -L../../mdbmth -L../../mdblib -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
+	$(CCC) -o $@ $@.o $(LDFLAGS) -L. -L../../mdbmth -L../../mdblib -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
 $(LIBRARY): $(OBJS)
 	$(AR) $(LIBRARY) $(OBJS)
 	$(RANLIB) $(LIBRARY)
+rpn.o: rpn.c
+	$(CC) $(CFLAGS) -c $< -o $@
+rpnl.o: rpnl.c
+	$(CC) $(CFLAGS) -c $< -o $@
+if2pf.o: if2pf.c
+	$(CC) $(CFLAGS) -c $< -o $@
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(OBJS) $(LIBRARY) $(DLL) $(EXP) $(PROGS:%=%$(EXEEXT))
+	rm -f $(OBJS) $(LIBRARY) $(DLL) $(EXP) $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
 
 .PHONY: all clean
 
