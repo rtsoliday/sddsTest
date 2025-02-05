@@ -23,10 +23,10 @@ endif
 
 # Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang  # Use Clang on macOS
-    AR = libtool -static -o  # macOS prefers `libtool` for static libraries
+    CC = clang
+    AR = libtool -static -o
     RANLIB = ranlib
-    CFLAGS += -Wno-deprecated-non-prototype
+    CFLAGS += -mmacosx-version-min=10.13 -Wno-deprecated-non-prototype
 endif
 
 # Adjust for Architecture
@@ -45,7 +45,7 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
-	CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
     LINK = lib -nologo -verbose
 endif
 
