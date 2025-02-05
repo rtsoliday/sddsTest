@@ -39,10 +39,12 @@ endif
 # Adjust for Architecture
 ifeq ($(ARCH), x86_64)
     CFLAGS += -mtune=generic
+    CCFLAGS += -mtune=generic
 endif
 
 ifeq ($(ARCH), arm64)
     CFLAGS += -mcpu=native
+    CCFLAGS += -mcpu=native
 endif
 
 # Adjust for Windows in a cygwin terminal
