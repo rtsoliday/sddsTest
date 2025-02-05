@@ -53,8 +53,8 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -MD
-    LINK = lib -nologo -verbose
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -DHAVE_CONFIG_H -DTUKLIB_SYMBOL_PREFIX=lzma_ -DHAVE_BSWAP_16 -DHAVE_BSWAP_32 -DHAVE_BSWAP_64 -DHAVE_DECL_PROGRAM_INVOCATION_NAME -DHAVE_VISIBILITY -DSIZEOF_SIZE_T=8 -DTUKLIB_FAST_UNALIGNED_ACCESS -DHAVE_DCGETTEXT -DHAVE_FUTIMENS -DHAVE_GETTEXT -DHAVE_STRUCT_STAT_ST_ATIM_TV_NSEC -DTUKLIB_CPUCORES_SYSCONF -DTUKLIB_PHYSMEM_SYSCONF -DEXPORT_LZMA /TP -MD /wd4003 /wd4200 /wd4244 /wd4267 /wd4996 -I.
+    LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
 endif
 
 SRC = alone_decoder.c \
@@ -129,29 +129,31 @@ SRC = alone_decoder.c \
 
 ifeq ($(OS), Windows)
   OBJ = $(SRC:.c=.obj)
-  LIB = lzma.lib
+  LIBRARY = lzma.lib
+  DLL = lzma.dll
+  EXP = lzma.exp
 else
   OBJ = $(SRC:.c=.o)
-  LIB = liblzma.a
+  LIBRARY = liblzma.a
 endif
 
-all: $(LIB)
+all: $(LIBRARY)
 
 ifeq ($(OS), Windows)
-  $(LIB): $(OBJ)
-	$(LINK) -out:$(LIB) -LTCG $(OBJ)
+  $(LIBRARY): $(OBJ)
+	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ)
   %.obj: %.c
 	$(CC) $(CFLAGS) -c $<
 else
-  $(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+  $(LIBRARY): $(OBJ)
+	$(AR) $(LIBRARY) $(OBJ)
+	$(RANLIB) $(LIBRARY)
   %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(OBJ) $(LIB)
+	rm -f $(OBJ) $(LIBRARY) $(DLL) $(EXP)
 
 .PHONY: all clean
 
