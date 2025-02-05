@@ -41,7 +41,7 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBLIB
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBLIB -I../include /wd4244 /wd4267
     LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
 endif
 

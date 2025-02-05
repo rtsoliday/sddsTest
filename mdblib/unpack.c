@@ -16,10 +16,6 @@
 #include "mdb.h"
 #include "scan.h"
 
-#if defined(_WIN32) && !defined(__MINGW32__)
-#  define popen(x, y) _popen(x, y)
-#endif
-
 #define UNPACK_TYPES 3
 static char *unpackSuffix[UNPACK_TYPES] = {
   "gz",

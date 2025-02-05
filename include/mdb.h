@@ -449,6 +449,7 @@ typedef unsigned __int64 uint64_t;
 #define SCNd64 "I64d"
 #define PRIu64 "I64u"
 #define SCNu64 "I64u"
+#define PRIx64 "I64x"
 #if !defined(INT32_MAX)
 #define INT32_MAX 2147483647i32
 #endif
