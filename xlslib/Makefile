@@ -10,7 +10,7 @@ endif
 CCC = g++
 AR = ar rcs
 RANLIB = ranlib
-CFLAGS = -m64 -O3 -g -Wall -fPIC -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I.
+CCFLAGS = -m64 -O3 -g -Wall -fPIC -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I.
 
 ifeq ($(OS), Linux)
    CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
@@ -31,21 +31,21 @@ endif
 
 # Adjust for Architecture
 ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
+    CCFLAGS += -mtune=generic
 endif
 
 ifeq ($(ARCH), aarch64)
-    CFLAGS += -mcpu=native
+    CCFLAGS += -mcpu=native
 endif
 
 ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
+    CCFLAGS += -mcpu=native
 endif
 
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CCC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
+    CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
     LINK = lib -nologo -verbose
 endif
 
@@ -101,13 +101,13 @@ ifeq ($(OS), Windows)
   $(LIB): $(OBJ)
 	$(LINK) -out:$(LIB) -LTCG $(OBJ)
   %.obj: %.cpp
-	$(CCC) $(CFLAGS) -c $<
+	$(CCC) $(CCFLAGS) -c $<
 else
   $(LIB): $(OBJ)
 	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
   %.o: %.cpp
-	$(CCC) $(CFLAGS) -c $< -o $@
+	$(CCC) $(CCFLAGS) -c $< -o $@
 endif
 
 clean:
