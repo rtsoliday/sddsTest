@@ -23,10 +23,9 @@ endif
 
 # Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang  # Use Clang on macOS
-    AR = libtool -static -o  # macOS prefers `libtool` for static libraries
+    CC = clang++ -mmacosx-version-min=10.13 -std=c++11
+    AR = libtool -static -o
     RANLIB = ranlib
-    #CFLAGS += -Wno-deprecated-non-prototype
 endif
 
 # Adjust for Architecture
