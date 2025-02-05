@@ -8,7 +8,7 @@ endif
 
 # Default Compiler and Flags
 CC = gcc
-CCc = g++
+CCC = g++
 AR = ar rcs
 RANLIB = ranlib
 CFLAGS = -m64 -O3 -g -Wall -fPIC -I../include
