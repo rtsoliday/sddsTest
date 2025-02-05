@@ -10,7 +10,7 @@ endif
 CC = gcc
 AR = ar rcs
 RANLIB = ranlib
-CFLAGS = -O3 -g -Wall -fPIC
+CFLAGS = -m64 -O3 -g -Wall -fPIC
 
 ifeq ($(OS), Linux)
    CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
