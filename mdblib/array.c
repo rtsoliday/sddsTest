@@ -67,13 +67,13 @@ void *tmalloc(uint64_t size_of_block) {
    * with zeros
    */
   if (!(ptr = calloc(size_of_block, 1))) {
-    printf("error: memory allocation failure--%lu bytes requested.\n",
+    printf("error: memory allocation failure--%"PRIu64" Bytes requested.\n",
            size_of_block);
-    printf("tmalloc() has allocated %lu bytes previously\n", total_bytes);
+    printf("tmalloc() has allocated %"PRIu64" bytes previously\n", total_bytes);
     abort();
   }
   if (fp_tmalloc) {
-    fprintf(fp_tmalloc, "%lx  %lu\n", (uint64_t)ptr, size_of_block);
+    fprintf(fp_tmalloc, "%"PRIx64"  %"PRIu64"\n", (uint64_t)ptr, size_of_block);
     fflush(fp_tmalloc);
   }
   total_bytes += size_of_block;
@@ -188,13 +188,13 @@ void *trealloc(void *old_ptr, uint64_t size_of_block) {
   if (!old_ptr)
     return (tmalloc(size_of_block));
   if (!(ptr = realloc((void *)old_ptr, (uint64_t)(size_of_block)))) {
-    printf("error: memory reallocation failure--%lu bytes requested.\n",
+    printf("error: memory reallocation failure--%"PRIu64" bytes requested.\n",
            size_of_block);
-    printf("trealloc() has reallocated %lu bytes previously\n", total_bytes);
+    printf("trealloc() has reallocated %"PRIu64" bytes previously\n", total_bytes);
     abort();
   }
   if (fp_trealloc) {
-    fprintf(fp_trealloc, "d:%lx\na:%lx  %lu\n", (uint64_t)old_ptr,
+    fprintf(fp_trealloc, "d:%"PRIx64"\na:%"PRIx64"  %"PRIu64"\n", (uint64_t)old_ptr,
             (uint64_t)ptr, size_of_block);
     fflush(fp_trealloc);
   }
@@ -229,7 +229,7 @@ void zero_memory(void *mem, uint64_t n_bytes) {
  */
 int tfree(void *ptr) {
   if (fp_tfree) {
-    fprintf(fp_tfree, "%lx\n", (uint64_t)ptr);
+    fprintf(fp_tfree, "%"PRIx64"\n", (uint64_t)ptr);
     fflush(fp_tfree);
   }
   if (ptr) {
