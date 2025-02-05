@@ -14,7 +14,8 @@
  */
 
 #include "mdb.h"
-
+long bio_count();
+long dio_count();
 /**
  * @brief Reports statistics to a specified file.
  *
@@ -27,7 +28,7 @@
 void report_stats(FILE *fp, char *label) {
   char s[200];
   extern char *elapsed_time();
-  long cpu_time(), bio_count(), dio_count(), page_faults(), memory_count();
+  //long cpu_time(), bio_count(), dio_count(), page_faults(), memory_count();
 
   sprintf(s, "ET:%13s CP:%8.2f BIO:%ld DIO:%ld PF:%ld MEM:%ld", elapsed_time(),
           cpu_time() / 100.0, bio_count(), dio_count(), page_faults(), memory_count());

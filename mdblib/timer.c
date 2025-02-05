@@ -21,7 +21,6 @@
 
 #include "mdb.h"
 
-#if defined(UNIX) || defined(_WIN32) || defined(vxWorks)
 double delapsed_time(void);
 
 /* routine elapsed_time() returns the clock time elapsed since init_stats()
@@ -187,5 +186,3 @@ long memory_count() {
 }
 # endif
 
-
-#endif
