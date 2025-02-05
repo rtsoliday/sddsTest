@@ -53,8 +53,9 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_RPNLIB -I../include
-    LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../../include /wd4244 /wd4267
+    LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
+    LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
 endif
 
 
@@ -107,6 +108,7 @@ ifeq ($(OS), Windows)
   LIBRARY = rpnlib.lib
   DLL = rpnlib.dll
   EXP = rpnlib.exp
+  PRODS = rpn.exe rpnl.exe if2pf.exe
 else
   OBJ = $(SRC:.c=.o)
   LIBRARY = librpnlib.a
@@ -116,22 +118,31 @@ endif
 all: $(LIBRARY) $(PRODS)
 
 ifeq ($(OS), Windows)
-  $(LIBRARY): $(OBJ)
-	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
-  %.obj: %.c
+
+$(PRODS): $(LIBRARY) rpn.obj rpnl.obj if2pf.obj
+	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib netapi32.lib
+$(LIBRARY): $(OBJ)
+	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJ) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
+rpn.obj: rpn.c
 	$(CC) $(CFLAGS) -c $<
+rpnl.obj: rpnl.c
+	$(CC) $(CFLAGS) -c $<
+if2pf.obj: if2pf.c
+	$(CC) $(CFLAGS) -c $<
+%.obj: %.c
+	$(CC) $(CFLAGS) -DEXPORT_RPNLIB  -c $<
 else
-  $(PRODS): $(LIBRARY) rpn.o rpnl.o if2pf.o
+$(PRODS): $(LIBRARY) rpn.o rpnl.o if2pf.o
 	$(CC) -o $@ $@.o $(LDFLAGS) -L. -L../../mdbmth -L../../mdblib -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
-  $(LIBRARY): $(OBJ)
+$(LIBRARY): $(OBJ)
 	$(AR) $(LIBRARY) $(OBJ)
 	$(RANLIB) $(LIBRARY)
-  %.o: %.c
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(OBJ) rpn.o rpnl.o if2pf.o $(LIBRARY) $(DLL) $(EXP) $(PRODS) 
+	rm -f $(OBJ) rpn.o rpnl.o if2pf.o rpn.obj rpnl.obj if2pf.obj $(LIBRARY) $(DLL) $(EXP) $(PRODS) 
 
 .PHONY: all clean
 

@@ -80,13 +80,75 @@ void sigpause(x)
 
 static FILE *fp = NULL;
 static int pid;
-static sigset_t mask, oldmask;
-static volatile sig_atomic_t sigusr1_received = 0;
 
 /* dummy signal handler for use with sigpause */
 void dummy_sigusr1()
 {
     }
+
+#if defined(_WIN32)
+void rpn_csh()
+
+{
+  char *ptr;
+  void dummy_sigusr1();
+  static char s[1024];
+
+  signal(SIGUSR1, dummy_sigusr1);
+
+  if (!fp) {
+    /* open a pipe and start csh */
+    fp = popen("csh", "w");
+    pid = getpid();
+  }
+
+  /* loop to print prompt and accept commands */
+  while (fputs("csh> ", stdout), fgets(s, 100, stdin)) {
+    /* send user's command along with another than causes subprocess
+     * to send the SIGUSR1 signal this process 
+     */
+    ptr = s;
+    while (isspace(*ptr))
+      ptr++;
+    if (strncmp(ptr, "quit", 4)==0 || strncmp(ptr, "exit", 4)==0)
+      break;
+    fprintf(fp, "%s\nkill -USR1 %d\n", s, pid);
+    fflush(fp);
+    /* pause until SIGUSR1 is received */
+    //sigpause(SIGUSR1);
+  }
+
+  /* back to default behavior for sigusr1 */
+  signal(SIGUSR1, SIG_DFL);
+}
+
+void rpn_csh_str()
+{
+  char *string;
+  void dummy_sigusr1();
+  signal(SIGUSR1, dummy_sigusr1);
+
+  if (!fp) {
+    /* open a pipe and start csh */
+    fp = popen("csh", "w");
+    pid = getpid();
+  }
+  if (!(string = pop_string()))
+    return;
+
+  fprintf(fp, "%s\nkill -USR1 %d\n", string, pid);
+  fflush(fp);
+  /* pause until SIGUSR1 is received */
+  //sigpause(SIGUSR1);
+
+  /* back to default behavior for sigusr1 */
+  signal(SIGUSR1, SIG_DFL);
+}
+
+#else
+
+static sigset_t mask, oldmask;
+static volatile sig_atomic_t sigusr1_received = 0;
 
 void rpn_csh() {
   char *ptr;
@@ -179,6 +241,7 @@ void rpn_csh_str() {
     /* Back to default behavior for SIGUSR1 */
     signal(SIGUSR1, SIG_DFL);
 }
+#endif
 
 void rpn_execs()
 {
