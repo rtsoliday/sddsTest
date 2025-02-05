@@ -5,7 +5,6 @@ ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
     OS := Windows
 endif
 
-
 GSL_LIB = $(firstword $(wildcard \
     $(addsuffix /libgsl.a, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
     $(addsuffix /libgsl.so, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
@@ -15,7 +14,6 @@ GSLCBLAS_LIB = $(firstword $(wildcard \
     $(addsuffix /libgslcblas.so, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
     $(addsuffix /libgslcblas.dylib, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib )))
 
-
 ifeq ($(OS), Linux)
   CC = gcc
   AR = ar rcs
@@ -23,6 +21,10 @@ ifeq ($(OS), Linux)
   CFLAGS = -m64 -O3 -g -Wall -fPIC -DUSE_GSL -I../../include
   LDFLAGS = -static-libstdc++ -rdynamic -m64
   PROD_SYS_LIBS = $(GSL_LIB) $(GSLCBLAS_LIB) -lpthread -lm -lrt -ldl -lgcc
+  OBJEXT = o
+  LIBEXT = a
+  LIBPRE = lib
+  EXEEXT =
 
   CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
   ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
@@ -39,6 +41,10 @@ ifeq ($(OS), Darwin)
   CFLAGS = -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
   PROD_SYS_LIBS = $(GSL_LIB) $(GSLCBLAS_LIB) -lm
+  OBJEXT = o
+  LIBEXT = a
+  LIBPRE = lib
+  EXEEXT =
 endif
 
 # Adjust for Architecture
@@ -52,38 +58,17 @@ endif
 
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-    CC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../../include /wd4244 /wd4267
-    LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
-    LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
+  CC = cl
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../../include /wd4244 /wd4267
+  LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
+  LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
+  OBJEXT = obj
+  LIBEXT = lib
+  LIBPRE =
+  EXEEXT = .exe
 endif
 
-
-# Define helper function for system library checks
-define CHECK_FOR_SYSTEM_LIBRARY
-  $(words $(notdir $(wildcard \
-    $(addsuffix /$(1).a, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /$(1).so, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /$(1).dylib, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ))))
-endef
-
-#Look for system version of GSL
-ifeq ($(strip $(call CHECK_FOR_SYSTEM_LIBRARY,libgsl)),0)
-  #No system level GSL library found.
-  ifeq ($(OS), Windows)
-    #Look for private version of GSL used here at APS
-    GSL = $(words $(wildcard ../../gsl))
-    ifeq ($(GSL), 1)
-      CFLAGS += -I../../gsl -DUSE_GSL -DUSE_GSL_FRESNEL
-      GSL_LIBS += -lgsl -lgslcblas
-      GSL_FLAGS += -L../../gsl
-    endif
-  endif
-else
-  CFLAGS += -DUSE_GSL
-endif
-
-SRC = array.c \
+SOURCES = array.c \
         conditional.c \
         execute.c \
         get_token_rpn.c \
@@ -103,26 +88,26 @@ SRC = array.c \
         stack.c \
         udf.c
 
+OBJS = $(SOURCES:.c=.$(OBJEXT))
+
 ifeq ($(OS), Windows)
-  OBJ = $(SRC:.c=.obj)
   LIBRARY = rpnlib.lib
   DLL = rpnlib.dll
   EXP = rpnlib.exp
-  PRODS = rpn.exe rpnl.exe if2pf.exe
 else
-  OBJ = $(SRC:.c=.o)
   LIBRARY = librpnlib.a
-  PRODS = rpn rpnl if2pf
 endif
 
-all: $(LIBRARY) $(PRODS)
+PROGS = rpn rpnl if2pf
+
+all: $(LIBRARY) $(PROGS:%=%$(EXEEXT))
 
 ifeq ($(OS), Windows)
 
-$(PRODS): $(LIBRARY) rpn.obj rpnl.obj if2pf.obj
+%$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
 	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib netapi32.lib
-$(LIBRARY): $(OBJ)
-	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJ) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
+$(LIBRARY): $(OBJS)
+	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
 rpn.obj: rpn.c
 	$(CC) $(CFLAGS) -c $<
 rpnl.obj: rpnl.c
@@ -132,18 +117,17 @@ if2pf.obj: if2pf.c
 %.obj: %.c
 	$(CC) $(CFLAGS) -DEXPORT_RPNLIB  -c $<
 else
-$(PRODS): $(LIBRARY) rpn.o rpnl.o if2pf.o
+%$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
 	$(CC) -o $@ $@.o $(LDFLAGS) -L. -L../../mdbmth -L../../mdblib -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
-$(LIBRARY): $(OBJ)
-	$(AR) $(LIBRARY) $(OBJ)
+$(LIBRARY): $(OBJS)
+	$(AR) $(LIBRARY) $(OBJS)
 	$(RANLIB) $(LIBRARY)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(OBJ) rpn.o rpnl.o if2pf.o rpn.obj rpnl.obj if2pf.obj $(LIBRARY) $(DLL) $(EXP) $(PRODS) 
+	rm -f $(OBJS) $(LIBRARY) $(DLL) $(EXP) $(PROGS:%=%$(EXEEXT))
 
 .PHONY: all clean
-
 
