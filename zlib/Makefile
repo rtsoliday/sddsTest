@@ -8,7 +8,7 @@ endif
 
 ifeq ($(OS), Windows)
   CC = cl  # Use cl from Microsoft Visual Studio
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -D_LARGEFILE64_SOURCE=1 -MD
   LINK = lib -nologo -verbose
 
   SRC = adler32.c \
