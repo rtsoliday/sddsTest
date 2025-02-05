@@ -40,7 +40,16 @@ ifeq ($(OS), Windows)
   clean:
 	rm -f $(OBJ) $(LIB)
 
-.PHONY: all clean
+else
+
+  all:
+	@echo Not building zlib on $(OS)
+
+  clean:
+	@echo Skipping on $(OS)
 
 endif
 
+
+
+.PHONY: all clean
