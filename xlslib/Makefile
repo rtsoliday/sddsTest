@@ -45,8 +45,8 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
     CCC = cl  # Use cl from Microsoft Visual Studio
-    CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
-    LINK = lib -nologo -verbose
+    CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD /wd4003 /wd4267 /wd4068 /wd4018 -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -DHAVE_CONFIG_H=1 -DEXPORT_XLS
+    LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
 endif
 
 SRC = assert_assist.cpp \
@@ -89,29 +89,31 @@ SRC = assert_assist.cpp \
 
 ifeq ($(OS), Windows)
   OBJ = $(SRC:.cpp=.obj)
-  LIB = xls.lib
+  LIBRARY = xls.lib
+  DLL = xls.dll
+  EXP = xls.exp
 else
   OBJ = $(SRC:.cpp=.o)
-  LIB = libxls.a
+  LIBRARY = libxls.a
 endif
 
-all: $(LIB)
+all: $(LIBRARY)
 
 ifeq ($(OS), Windows)
-  $(LIB): $(OBJ)
-	$(LINK) -out:$(LIB) -LTCG $(OBJ)
+  $(LIBRARY): $(OBJ)
+	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ)
   %.obj: %.cpp
 	$(CCC) $(CCFLAGS) -c $<
 else
-  $(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+  $(LIBRARY): $(OBJ)
+	$(AR) $(LIBRARY) $(OBJ)
+	$(RANLIB) $(LIBRARY)
   %.o: %.cpp
 	$(CCC) $(CCFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(OBJ) $(LIB)
+	rm -f $(OBJ) $(LIBRARY) $(DLL) $(EXP)
 
 .PHONY: all clean
 
