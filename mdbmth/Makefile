@@ -28,7 +28,7 @@ endif
 
 # Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang
+    CC = clang -Wno-deprecated-non-prototype
     CCC = clang++
     AR = libtool -static -o
     RANLIB = ranlib
