@@ -7,15 +7,15 @@ ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
 endif
 
 # Default Compiler and Flags
-CC = gcc
+CCC = g++
 AR = ar rcs
 RANLIB = ranlib
-CFLAGS = -O3 -g -Wall -fPIC -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I.
+CFLAGS = -m64 -O3 -g -Wall -fPIC -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I.
 
 ifeq ($(OS), Linux)
    CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
    ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-      CC = $(CUSTOM_GCC_PATH)/bin/gcc
+      CCC = $(CUSTOM_GCC_PATH)/bin/g++
       AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
       RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
    endif
@@ -23,9 +23,10 @@ endif
 
 # Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang++ -mmacosx-version-min=10.13 -std=c++11
+    CCC = clang++
     AR = libtool -static -o
     RANLIB = ranlib
+    CCFLAGS += -mmacosx-version-min=10.13 -std=c++11 -m64 
 endif
 
 # Adjust for Architecture
@@ -43,8 +44,8 @@ endif
 
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-    CC = cl  # Use cl from Microsoft Visual Studio
-	CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
+    CCC = cl  # Use cl from Microsoft Visual Studio
+    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
     LINK = lib -nologo -verbose
 endif
 
@@ -97,22 +98,16 @@ endif
 all: $(LIB)
 
 ifeq ($(OS), Windows)
-
-$(LIB): $(OBJ)
+  $(LIB): $(OBJ)
 	$(LINK) -out:$(LIB) -LTCG $(OBJ)
-
-%.obj: %.cpp
-	$(CC) $(CFLAGS) -c $<
-
+  %.obj: %.cpp
+	$(CCC) $(CFLAGS) -c $<
 else
-
-$(LIB): $(OBJ)
+  $(LIB): $(OBJ)
 	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
-
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
-
+  %.o: %.cpp
+	$(CCC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
