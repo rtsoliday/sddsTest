@@ -86,10 +86,6 @@
 #define epicsShareFuncMDBCOMMON
 #endif
 
-#if defined(zLib)
-#include "zlib.h"
-#endif
-
 #ifdef __cplusplus 
 extern "C" {
 #endif
@@ -126,9 +122,6 @@ epicsShareFuncMDBCOMMON void processFilenames(char *programName, char **input, c
 #define UNPACK_USE_PIPE     0x00000002UL
 long PackSuffixType(char *filename, char **unpackedName,  unsigned long mode);
 epicsShareFuncMDBLIB FILE *UnpackFopen(char *filename, unsigned long mode, short *popenUsed, char **tmpFileUsed);
-#if defined(zLib)
-epicsShareFuncMDBLIB gzFile UnpackGZipOpen(char *filename);
-#endif
 
 #include "SDDStypes.h"
 

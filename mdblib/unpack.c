@@ -127,19 +127,3 @@ FILE *UnpackFopen(char *filename, unsigned long mode, short *popenUsed, char **t
     return fopen(command, FOPEN_READ_MODE);
   }
 }
-
-#if defined(zLib)
-/**
- * @brief Opens a gzip-compressed file.
- *
- * This function opens a gzip-compressed file for reading in binary mode using the zlib library.
- *
- * @param filename The name of the gzip file to open.
- * @return A gzFile pointer to the opened gzip file, or NULL if the file could not be opened.
- */
-gzFile UnpackGZipOpen(char *filename) {
-  if (!filename)
-    return NULL;
-  return gzopen(filename, "rb");
-}
-#endif
