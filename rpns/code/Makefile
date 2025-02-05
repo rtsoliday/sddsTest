@@ -30,6 +30,7 @@ ifeq ($(OS), Linux)
   CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
   ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
     CC = $(CUSTOM_GCC_PATH)/bin/gcc
+    CCC = $(CUSTOM_GCC_PATH)/bin/g++
     AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
     RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
   endif
