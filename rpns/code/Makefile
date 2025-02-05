@@ -108,7 +108,7 @@ all: $(LIBRARY) $(PROGS:%=%$(EXEEXT))
 ifeq ($(OS), Windows)
 
 %$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
-	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib netapi32.lib
+	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib
 $(LIBRARY): $(OBJS)
 	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
 rpn.obj: rpn.c
