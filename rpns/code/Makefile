@@ -5,14 +5,17 @@ ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
     OS := Windows
 endif
 
+# Common library search paths
+LIB_DIRS := /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib
+
 GSL_LIB = $(firstword $(wildcard \
-    $(addsuffix /libgsl.a, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /libgsl.so, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /libgsl.dylib, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib )))
+           $(addsuffix /libgsl.a, $(LIB_DIRS)) \
+           $(addsuffix /libgsl.so, $(LIB_DIRS)) \
+           $(addsuffix /libgsl.dylib, $(LIB_DIRS))))
 GSLCBLAS_LIB = $(firstword $(wildcard \
-    $(addsuffix /libgslcblas.a, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /libgslcblas.so, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib ) \
-    $(addsuffix /libgslcblas.dylib, /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib )))
+              $(addsuffix /libgslcblas.a, $(LIB_DIRS)) \
+              $(addsuffix /libgslcblas.so, $(LIB_DIRS)) \
+              $(addsuffix /libgslcblas.dylib, $(LIB_DIRS))))
 
 ifeq ($(OS), Linux)
   CC = gcc
@@ -50,15 +53,6 @@ ifeq ($(OS), Darwin)
   EXEEXT =
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
-endif
-
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
   CC = cl
@@ -69,6 +63,15 @@ ifeq ($(OS), Windows)
   LIBEXT = lib
   LIBPRE =
   EXEEXT = .exe
+endif
+
+# Adjust for Architecture
+ifeq ($(ARCH), x86_64)
+    CFLAGS += -mtune=generic
+endif
+
+ifeq ($(ARCH), arm64)
+    CFLAGS += -mcpu=native
 endif
 
 SOURCES = array.c \
