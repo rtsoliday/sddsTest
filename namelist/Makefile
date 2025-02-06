@@ -19,7 +19,7 @@ ifeq ($(OS), Windows)
   NO_DLL = 1
 endif
 
-LIRBRARY_SRC = escape_quotes.c \
+LIBRARY_SRC = escape_quotes.c \
           free_namelist.c \
           free_namelist_text.c \
           get_namelist.c \

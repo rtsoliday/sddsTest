@@ -1,5 +1,6 @@
 PROD := $(patsubst %,$(OBJ_DIR)/%, $(PROD))
 
+ifneq ($(LIBRARY),)
 ifeq ($(OS), Windows)
   DLL = $(LIBRARY:=.dll)
   EXP = $(LIBRARY:=.exp)
@@ -15,6 +16,7 @@ LIBRARY_OBJS = $(LIBRARY_SRC:.c=.$(OBJEXT))
 LIBRARY_OBJS := $(LIBRARY_OBJS:.cc=.$(OBJEXT))
 LIBRARY_OBJS := $(LIBRARY_OBJS:.cpp=.$(OBJEXT))
 LIBRARY_OBJS := $(patsubst %,$(OBJ_DIR)/%, $(LIBRARY_OBJS))
+endif
 
 all: $(OBJ_DIR) $(BIN_DIR) $(LIBRARY) $(PROD:%=%$(EXEEXT))
 

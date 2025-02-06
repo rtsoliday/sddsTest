@@ -9,8 +9,6 @@ ifeq ($(OS), Linux)
 endif
 
 ifeq ($(OS), Darwin)
-  CFLAGS += -fopenmp
-  CCFLAGS += -fopenmp
 endif
 
 ifeq ($(OS), Windows)
