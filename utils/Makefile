@@ -5,6 +5,26 @@ ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
     OS := Windows
 endif
 
+# Common library search paths
+LIB_DIRS := /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib
+
+HDF5_LIB = $(firstword $(wildcard \
+           $(addsuffix /libhdf5.a, $(LIB_DIRS)) \
+           $(addsuffix /libhdf5.so, $(LIB_DIRS)) \
+           $(addsuffix /libhdf5.dylib, $(LIB_DIRS))))
+SZ_LIB = $(firstword $(wildcard \
+           $(addsuffix /libsz.a, $(LIB_DIRS)) \
+           $(addsuffix /libsz.so, $(LIB_DIRS)) \
+           $(addsuffix /libsz.dylib, $(LIB_DIRS))))
+GSL_LIB = $(firstword $(wildcard \
+           $(addsuffix /libgsl.a, $(LIB_DIRS)) \
+           $(addsuffix /libgsl.so, $(LIB_DIRS)) \
+           $(addsuffix /libgsl.dylib, $(LIB_DIRS))))
+GSLCBLAS_LIB = $(firstword $(wildcard \
+              $(addsuffix /libgslcblas.a, $(LIB_DIRS)) \
+              $(addsuffix /libgslcblas.so, $(LIB_DIRS)) \
+              $(addsuffix /libgslcblas.dylib, $(LIB_DIRS))))
+
 ifeq ($(OS), Linux)
   CC = gcc
   CCC = g++
@@ -34,7 +54,7 @@ ifeq ($(OS), Darwin)
   RANLIB = ranlib
   CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -fno-common -mmacosx-version-min=10.13 -DH5_USE_16_API -I../include -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
-  PROD_SYS_LIBS = -lhdf5 -llzma -lgsl -lgslcblas -lz -lm
+  PROD_SYS_LIBS = $(HDF5_LIB) $(SZ_LIB) -llzma $(GSL_LIB) $(GSLCBLAS_LIB) -lz -lm
   OBJEXT = o
   LIBEXT = a
   LIBPRE = lib
