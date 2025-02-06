@@ -10,7 +10,7 @@ ifeq ($(OS), Linux)
   CCC = g++
   AR = ar rcs
   RANLIB = ranlib
-  CFLAGS = -m64 -O3 -g -Wall -fPIC -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../lzma
+  CFLAGS = -m64 -O3 -g -Wall -fPIC -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include
   LDFLAGS = -static-libstdc++ -rdynamic -m64
   PROD_SYS_LIBS = -lpthread -lm -lrt -ldl -lgcc
   OBJEXT = o
@@ -32,7 +32,7 @@ ifeq ($(OS), Darwin)
   CCC = clang++
   AR = libtool -static -o
   RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../lzma
+  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
   PROD_SYS_LIBS = -lm
   OBJEXT = o

@@ -30,26 +30,24 @@ ifeq ($(OS), Windows)
   OBJ = $(SRC:.c=.obj)
   LIB = z.lib
 
-  all: $(LIB)
+all: $(LIB)
 
-  $(LIB): $(OBJ)
+$(LIB): $(OBJ)
 	$(LINK) -out:$(LIB) -LTCG $(OBJ)
-  %.obj: %.c
+%.obj: %.c
 	$(CC) $(CFLAGS) -c $<
 
-  clean:
+clean:
 	rm -f $(OBJ) $(LIB)
 
 else
 
-  all:
+all:
 	@echo Not building zlib on $(OS)
 
-  clean:
+clean:
 	@echo Skipping on $(OS)
 
 endif
-
-
 
 .PHONY: all clean
