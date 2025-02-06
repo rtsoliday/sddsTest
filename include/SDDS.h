@@ -214,6 +214,9 @@ extern "C" {
 #endif
 
 #if !defined(LZMA_BUF_SIZE)
+#if defined(_WIN32)
+#include <stdint.h>
+#endif
 #include <lzma.h>
 #define LZMA_BUF_SIZE 40960
   struct lzmafile {
