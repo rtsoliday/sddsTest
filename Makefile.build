@@ -1,0 +1,13 @@
+all: $(PROGS:%=%$(EXEEXT))
+
+ifeq ($(OS), Windows)
+OUTPUT =
+else
+OUTPUT = -o $@
+endif
+
+
+clean:
+	rm -f $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
+
+.PHONY: all clean
