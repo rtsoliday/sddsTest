@@ -32,7 +32,7 @@ ifeq ($(OS), Darwin)
   CCC = clang++
   AR = libtool -static -o
   RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
+  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
   PROD_SYS_LIBS = -lm
   OBJEXT = o
