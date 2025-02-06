@@ -54,7 +54,7 @@ endif
 ifeq ($(OS), Windows)
   CC = cl
   CCC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include /wd4244
   LINKLIB = lib -nologo
   OBJEXT = obj
   LIBEXT = lib
@@ -82,7 +82,7 @@ all: $(LIBRARY)
 ifeq ($(OS), Windows)
 
 $(LIBRARY): $(OBJS)
-	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ)
+	$(LINKLIB) -out:$(LIBRARY) $(OBJS)
 %.obj: %.c
 	$(CC) $(CFLAGS) -DEXPORT_MATLIB  -c $<
 else
