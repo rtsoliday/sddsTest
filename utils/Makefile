@@ -1,114 +1,31 @@
-# Detect OS and Architecture
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
-    OS := Windows
-endif
+include ../Makefile.rules
 
-# Common library search paths
-LIB_DIRS := /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib
+$(info CC $(CC))
 
-HDF5_LIB = $(firstword $(wildcard \
-           $(addsuffix /libhdf5.a, $(LIB_DIRS)) \
-           $(addsuffix /libhdf5.so, $(LIB_DIRS)) \
-           $(addsuffix /libhdf5.dylib, $(LIB_DIRS))))
-SZ_LIB = $(firstword $(wildcard \
-           $(addsuffix /libsz.a, $(LIB_DIRS)) \
-           $(addsuffix /libsz.so, $(LIB_DIRS)) \
-           $(addsuffix /libsz.dylib, $(LIB_DIRS))))
-GSL_LIB = $(firstword $(wildcard \
-           $(addsuffix /libgsl.a, $(LIB_DIRS)) \
-           $(addsuffix /libgsl.so, $(LIB_DIRS)) \
-           $(addsuffix /libgsl.dylib, $(LIB_DIRS))))
-GSLCBLAS_LIB = $(firstword $(wildcard \
-              $(addsuffix /libgslcblas.a, $(LIB_DIRS)) \
-              $(addsuffix /libgslcblas.so, $(LIB_DIRS)) \
-              $(addsuffix /libgslcblas.dylib, $(LIB_DIRS))))
+CFLAGS += -DH5_USE_16_API -I../include
 
 ifeq ($(OS), Linux)
-  CC = gcc
-  CCC = g++
-  AR = ar rcs
-  RANLIB = ranlib
-  CFLAGS = -m64 -O3 -g -Wall -fPIC -DH5_USE_16_API -I../include
-  LDFLAGS = -static-libstdc++ -rdynamic -m64
-  PROD_SYS_LIBS = -lhdf5 -llzma -lgsl -lgslcblas -lz -lpthread -lm -lrt -ldl -lgcc
-  OBJEXT = o
-  LIBEXT = a
-  LIBPRE = lib
-  EXEEXT =
-
-  CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
-  ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-    CC = $(CUSTOM_GCC_PATH)/bin/gcc
-    CCC = $(CUSTOM_GCC_PATH)/bin/g++
-    AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
-    RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
-  endif
+  PROD_SYS_LIBS := $(HDF5_LIB) $(LZMA_LIB) $(GSL_LIB) $(GSLCBLAS_LIB) $(Z_LIB) $(PROD_SYS_LIBS)
+  PROD_LIBS = -lmdbcommon -lSDDS1 -lrpnlib -lmdbmth -lmdblib
 endif
 
 ifeq ($(OS), Darwin)
-  CC = clang
-  CCC = clang++
-  AR = libtool -static -o
-  RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -fno-common -mmacosx-version-min=10.13 -DH5_USE_16_API -I../include -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
-  LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
-  PROD_SYS_LIBS = $(HDF5_LIB) $(SZ_LIB) -llzma $(GSL_LIB) $(GSLCBLAS_LIB) -lz -lm
-  OBJEXT = o
-  LIBEXT = a
-  LIBPRE = lib
-  EXEEXT =
+  PROD_SYS_LIBS := $(HDF5_LIB) $(SZ_LIB) $(LZMA_LIB) $(GSL_LIB) $(GSLCBLAS_LIB) $(Z_LIB) $(PROD_SYS_LIBS)
+  PROD_LIBS = -lmdbcommon -lSDDS1 -lrpnlib -lmdbmth -lmdblib
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
-endif
-
-# Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-  HDF_DIR = c:/HDF5/1.12.1
-  CC = cl
-  CCC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DH5_USE_16_API -I../include -I../lzma -I$(HDF_DIR)/include
-  LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
-  OBJEXT = obj
-  LIBEXT = lib
-  LIBPRE =
-  EXEEXT = .exe
+  CFLAGS += -I$(HDF_DIR)/include
+  PROD_LIBS = ../SDDSlib/SDDS1.lib ../mdbcommon/mdbcommon.lib ../mdbmth/mdbmth.lib ../mdblib/mdblib.lib ../zlib/z.lib $(HDF_DIR)/lib/libhdf5.lib $(HDF_DIR)/lib/libsz.lib $(HDF_DIR)/lib/libaec.lib 
 endif
 
 PROGS = editstring replaceText isFileLocked hdf2sdds sdds2hdf
 
-all: $(PROGS:%=%$(EXEEXT))
+include ../Makefile.build
 
-ifeq ($(OS), Windows)
-OUTPUT =
-%$(EXEEXT): %.$(OBJEXT)
-	$(LINKEXE) -out:$@ $(@:.exe=.obj) ../SDDSlib/SDDS1.lib ../mdbcommon/mdbcommon.lib ../mdbmth/mdbmth.lib ../mdblib/mdblib.lib ../zlib/z.lib $(HDF_DIR)/lib/libhdf5.lib $(HDF_DIR)/lib/libsz.lib $(HDF_DIR)/lib/libaec.lib 
-else
-OUTPUT = -o $@
-%$(EXEEXT): %.$(OBJEXT)
-	$(CCC) -o $@ $@.o $(LDFLAGS) -L. -L../mdbcommon -L../SDDSlib -L../rpns/code -L../mdbmth -L../mdblib -lmdbcommon -lSDDS1 -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
-endif
 editstring.$(OBJEXT): editstring.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 replaceText.$(OBJEXT): replaceText.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 isFileLocked.$(OBJEXT): isFileLocked.c
-	$(CC) $(CFLAGS) -c $< $(OUPUT)
 hdf2sdds.$(OBJEXT): hdf2sdds.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 sdds2hdf.$(OBJEXT): sdds2hdf.c
 	$(CC) $(CFLAGS) -c $< $(OUTPUT)
-
-clean:
-	rm -f $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
-
-.PHONY: all clean
-
