@@ -53,7 +53,8 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
   CC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../../include
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include /wd4267
+  LINKLIB = lib -nologo
   LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
   LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
   OBJEXT = obj
@@ -78,8 +79,6 @@ OBJS = $(SOURCES:.c=.$(OBJEXT))
 
 ifeq ($(OS), Windows)
   LIBRARY = namelist.lib
-  DLL = namelist.dll
-  EXP = namelist.exp
 else
   LIBRARY = libnamelist.a
 endif
@@ -92,21 +91,21 @@ all: $(LIBRARY) $(PROGS:%=%$(EXEEXT))
 
 ifeq ($(OS), Windows)
 
-nlpp$(EXEEXT): nlpp.$(OBJEXT) scanargs.$(OBJEXT) $(LIBRARY)
-	$(LINKEXE) -out:$@ nlpp.$(OBJEXT) scanargs.$(OBJEXT) namelist.lib
+nlpp.exe: namelist_pp.obj scanargs.obj $(LIBRARY)
+	$(LINKEXE) -out:$@ namelist_pp.obj scanargs.obj namelist.lib ../mdblib/mdblib.lib
 %$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
 	$(LINKEXE) -out:$@ $(@:.exe=.obj) namelist.lib
 $(LIBRARY): $(OBJS)
-	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../rpns/code/rpnlib.lib ../mdblib/mdblib.lib
-nlpp.obj: namelist_pp.c scanargs.$(OBJEXT)
+	$(LINKLIB) -out:$(LIBRARY) $(OBJS) 
+namelist_pp.obj: namelist_pp.c scanargs.obj
 	$(CC) $(CFLAGS) -c $<
 scanargs.$(OBJEXT): scanargs.c
 	$(CC) $(CFLAGS) -c $<
 %.obj: %.c
 	$(CC) $(CFLAGS) -c $<
 else
-nlpp$(EXEEXT): nlpp.$(OBJEXT) scanargs.$(OBJEXT) $(LIBRARY)
-	$(CCC) -o $@ nlpp.$(OBJEXT) scanargs.$(OBJEXT) $(LDFLAGS) -L. -L../rpns/code -L../mdblib -lnamelist -lrpnlib -lmdblib  $(PROD_SYS_LIBS)
+nlpp: nlpp.o scanargs.o $(LIBRARY)
+	$(CCC) -o $@ nlpp.o scanargs.o $(LDFLAGS) -L. -L../rpns/code -L../mdblib -lnamelist -lrpnlib -lmdblib  $(PROD_SYS_LIBS)
 %$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
 	$(CCC) -o $@ $@.o $(LDFLAGS) -L../rpns/code -L../mdblib -lrpnlib -lmdblib  $(PROD_SYS_LIBS)
 $(LIBRARY): $(OBJS)
@@ -121,7 +120,7 @@ scanargs.o: scanargs.c
 endif
 
 clean:
-	rm -f $(OBJS) $(PROG_OBJS) $(LIBRARY) $(DLL) $(EXP) $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
+	rm -f $(OBJS) $(PROG_OBJS) $(LIBRARY) $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
 
 .PHONY: all clean
 
