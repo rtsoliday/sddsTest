@@ -1,4 +1,3 @@
-
 # Detect OS and Architecture
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
@@ -7,11 +6,12 @@ ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
 endif
 
 ifeq ($(OS), Windows)
-  CC = cl  # Use cl from Microsoft Visual Studio
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -D_LARGEFILE64_SOURCE=1 -MD
-  LINK = lib -nologo -verbose
+  NO_DLL = 1
+include ../Makefile.rules
 
-  SRC = adler32.c \
+  CFLAGS += -D_LARGEFILE64_SOURCE=1
+
+  LIBRARY_SRC = adler32.c \
         compress.c \
         crc32.c \
         gzclose.c \
@@ -27,18 +27,9 @@ ifeq ($(OS), Windows)
         inftrees.c \
         inffast.c
 
-  OBJ = $(SRC:.c=.obj)
-  LIB = z.lib
+  LIBRARY = z
 
-all: $(LIB)
-
-$(LIB): $(OBJ)
-	$(LINK) -out:$(LIB) -LTCG $(OBJ)
-%.obj: %.c
-	$(CC) $(CFLAGS) -c $<
-
-clean:
-	rm -f $(OBJ) $(LIB)
+include ../Makefile.build
 
 else
 
@@ -48,6 +39,37 @@ all:
 clean:
 	@echo Skipping on $(OS)
 
+.PHONY: all clean
+
 endif
 
-.PHONY: all clean
+$(OBJ_DIR)/adler32.$(OBJEXT): adler32.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/compress.$(OBJEXT): compress.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/crc32.$(OBJEXT): crc32.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gzclose.$(OBJEXT): gzclose.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gzlib.$(OBJEXT): gzlib.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gzread.$(OBJEXT): gzread.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gzwrite.$(OBJEXT): gzwrite.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/uncompr.$(OBJEXT): uncompr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/deflate.$(OBJEXT): deflate.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/trees.$(OBJEXT): trees.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zutil.$(OBJEXT): zutil.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/inflate.$(OBJEXT): inflate.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/infback.$(OBJEXT): infback.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/inftrees.$(OBJEXT): inftrees.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/inffast.$(OBJEXT): inffast.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)

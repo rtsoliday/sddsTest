@@ -1,55 +1,18 @@
+include ../Makefile.rules
 
-# Detect OS and Architecture
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
-    OS := Windows
-endif
-
-# Default Compiler and Flags
-CC = gcc
-AR = ar rcs
-RANLIB = ranlib
-CFLAGS = -m64 -O3 -g -Wall -fPIC
+CFLAGS += -I../include
 
 ifeq ($(OS), Linux)
-   CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
-   ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-      CC = $(CUSTOM_GCC_PATH)/bin/gcc
-      AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
-      RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
-   endif
 endif
 
-# Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang
-    AR = libtool -static -o
-    RANLIB = ranlib
-    CFLAGS += -mmacosx-version-min=10.13 -Wno-deprecated-non-prototype
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), aarch64)
-    CFLAGS += -mcpu=native
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
-endif
-
-# Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-    CC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W0 -MD /wd4003 /wd4068 /wd4018
-    LINK = lib -nologo -verbose
+  CFLAGS += /wd4003 /wd4068 /wd4018
 endif
 
-SRC = bdfactor.c \
+LIBRARY_SRC = bdfactor.c \
 	bkpfacto.c \
 	chfactor.c \
 	copy.c \
@@ -108,32 +71,123 @@ SRC = bdfactor.c \
 	zsolve.c \
 	zvecop.c
 
-ifeq ($(OS), Windows)
-  OBJ = $(SRC:.c=.obj)
-  LIB = meschach.lib
-else
-  OBJ = $(SRC:.c=.o)
-  LIB = libmeschach.a
-endif
+LIBRARY = mdbmth
 
-all: $(LIB)
+include ../Makefile.build
 
-ifeq ($(OS), Windows)
-  $(LIB): $(OBJ)
-	$(LINK) -out:$(LIB) -LTCG $(OBJ)
-  %.obj: %.c
-	$(CC) $(CFLAGS) -c $<
-else
-  $(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
-  %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-endif
-
-clean:
-	rm -f $(OBJ) $(LIB)
-
-.PHONY: all clean
-
-
+$(OBJ_DIR)/bdfactor.$(OBJEXT): bdfactor.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/bkpfacto.$(OBJEXT): bkpfacto.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/chfactor.$(OBJEXT): chfactor.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/copy.$(OBJEXT): copy.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/err.$(OBJEXT): err.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/fft.$(OBJEXT): fft.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/givens.$(OBJEXT): givens.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/hessen.$(OBJEXT): hessen.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/hsehldr.$(OBJEXT): hsehldr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/init.$(OBJEXT): init.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/iter0.$(OBJEXT): iter0.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/iternsym.$(OBJEXT): iternsym.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/itersym.$(OBJEXT): itersym.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/ivecop.$(OBJEXT): ivecop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/lufactor.$(OBJEXT): lufactor.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/machine.$(OBJEXT): machine.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/matlab.$(OBJEXT): matlab.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/matop.$(OBJEXT): matop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/matrixio.$(OBJEXT): matrixio.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/meminfo.$(OBJEXT): meminfo.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/memory.$(OBJEXT): memory.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/memstat.$(OBJEXT): memstat.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/mfunc.$(OBJEXT): mfunc.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/norm.$(OBJEXT): norm.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/otherio.$(OBJEXT): otherio.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/pxop.$(OBJEXT): pxop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/qrfactor.$(OBJEXT): qrfactor.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/schur.$(OBJEXT): schur.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/solve.$(OBJEXT): solve.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/sparse.$(OBJEXT): sparse.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/sparseio.$(OBJEXT): sparseio.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/spbkp.$(OBJEXT): spbkp.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/spchfctr.$(OBJEXT): spchfctr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/splufctr.$(OBJEXT): splufctr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/sprow.$(OBJEXT): sprow.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/spswap.$(OBJEXT): spswap.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/submat.$(OBJEXT): submat.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/svd.$(OBJEXT): svd.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/symmeig.$(OBJEXT): symmeig.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/update.$(OBJEXT): update.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/vecop.$(OBJEXT): vecop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/version.$(OBJEXT): version.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zcopy.$(OBJEXT): zcopy.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zfunc.$(OBJEXT): zfunc.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zgivens.$(OBJEXT): zgivens.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zhessen.$(OBJEXT): zhessen.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zhsehldr.$(OBJEXT): zhsehldr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zlufctr.$(OBJEXT): zlufctr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zmachine.$(OBJEXT): zmachine.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zmatio.$(OBJEXT): zmatio.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zmatlab.$(OBJEXT): zmatlab.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zmatop.$(OBJEXT): zmatop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zmemory.$(OBJEXT): zmemory.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/znorm.$(OBJEXT): znorm.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zqrfctr.$(OBJEXT): zqrfctr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zschur.$(OBJEXT): zschur.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zsolve.$(OBJEXT): zsolve.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zvecop.$(OBJEXT): zvecop.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)

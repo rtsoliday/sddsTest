@@ -1,55 +1,20 @@
+NO_DLL = 1
 
-# Detect OS and Architecture
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
-    OS := Windows
-endif
+include ../Makefile.rules
 
-# Default Compiler and Flags
-CCC = g++
-AR = ar rcs
-RANLIB = ranlib
-CCFLAGS = -m64 -O3 -g -Wall -fPIC -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I.
+CCFLAGS += -DHAVE_CONFIG_H=1 -DEXPORT_XLS -I../include -I.
 
 ifeq ($(OS), Linux)
-   CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
-   ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-      CCC = $(CUSTOM_GCC_PATH)/bin/g++
-      AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
-      RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
-   endif
 endif
 
-# Adjust for macOS
 ifeq ($(OS), Darwin)
-    CCC = clang++
-    AR = libtool -static -o
-    RANLIB = ranlib
-    CCFLAGS += -mmacosx-version-min=10.13 -std=c++11 -m64 
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CCFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), aarch64)
-    CCFLAGS += -mcpu=native
-endif
-
-ifeq ($(ARCH), arm64)
-    CCFLAGS += -mcpu=native
-endif
-
-# Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-    CCC = cl  # Use cl from Microsoft Visual Studio
-    CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD /wd4003 /wd4267 /wd4068 /wd4018 -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -DHAVE_CONFIG_H=1 -DEXPORT_XLS
-    LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
+  CCFLAGS += /wd4003 /wd4267 /wd4068 /wd4018 -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 endif
 
-SRC = assert_assist.cpp \
+LIBRARY_SRC = assert_assist.cpp \
 	blank.cpp \
 	boolean.cpp \
 	cbridge.cpp \
@@ -87,34 +52,81 @@ SRC = assert_assist.cpp \
 	olefs.cpp \
 	oleprop.cpp
 
-ifeq ($(OS), Windows)
-  OBJ = $(SRC:.cpp=.obj)
-  LIBRARY = xls.lib
-  DLL = xls.dll
-  EXP = xls.exp
-else
-  OBJ = $(SRC:.cpp=.o)
-  LIBRARY = libxls.a
-endif
+LIBRARY = xls
 
-all: $(LIBRARY)
+include ../Makefile.build
 
-ifeq ($(OS), Windows)
-  $(LIBRARY): $(OBJ)
-	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ)
-  %.obj: %.cpp
-	$(CCC) $(CCFLAGS) -c $<
-else
-  $(LIBRARY): $(OBJ)
-	$(AR) $(LIBRARY) $(OBJ)
-	$(RANLIB) $(LIBRARY)
-  %.o: %.cpp
-	$(CCC) $(CCFLAGS) -c $< -o $@
-endif
-
-clean:
-	rm -f $(OBJ) $(LIBRARY) $(DLL) $(EXP)
-
-.PHONY: all clean
-
-
+$(OBJ_DIR)/assert_assist.$(OBJEXT): assert_assist.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/blank.$(OBJEXT): blank.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/boolean.$(OBJEXT): boolean.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/cbridge.$(OBJEXT): cbridge.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/cell.$(OBJEXT): cell.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/colinfo.$(OBJEXT): colinfo.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/colors.$(OBJEXT): colors.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/continue.$(OBJEXT): continue.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/datast.$(OBJEXT): datast.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/docsumminfo.$(OBJEXT): docsumminfo.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/err.$(OBJEXT): err.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/extformat.$(OBJEXT): extformat.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/font.$(OBJEXT): font.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/format.$(OBJEXT): format.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/formula.$(OBJEXT): formula.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/formula_cell.$(OBJEXT): formula_cell.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/formula_estimate.$(OBJEXT): formula_estimate.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/formula_expr.$(OBJEXT): formula_expr.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/globalrec.$(OBJEXT): globalrec.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/HPSF.$(OBJEXT): HPSF.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/index.$(OBJEXT): index.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/label.$(OBJEXT): label.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/merged.$(OBJEXT): merged.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/note.$(OBJEXT): note.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/number.$(OBJEXT): number.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/range.$(OBJEXT): range.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/recdef.$(OBJEXT): recdef.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/record.$(OBJEXT): record.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/row.$(OBJEXT): row.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/sheetrec.$(OBJEXT): sheetrec.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/summinfo.$(OBJEXT): summinfo.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/unit.$(OBJEXT): unit.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/workbook.$(OBJEXT): workbook.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/binfile.$(OBJEXT): binfile.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/oledoc.$(OBJEXT): oledoc.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/olefs.$(OBJEXT): olefs.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/oleprop.$(OBJEXT): oleprop.cpp
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)

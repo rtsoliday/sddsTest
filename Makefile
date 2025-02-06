@@ -16,13 +16,21 @@ DIRS += utils
 
 all: $(DIRS)
 
+meschach:
+	$(MAKE) -C $@
+xlslib:
+	$(MAKE) -C $@
+zlib:
+	$(MAKE) -C $@
+lzma:
+	$(MAKE) -C $@
 mdblib: zlib
 	$(MAKE) -C $@
 mdbmth: mdblib
 	$(MAKE) -C $@
 rpns/code: mdbmth
 	$(MAKE) -C $@
-namelist: rpns/code
+namelist: mdblib
 	$(MAKE) -C $@
 SDDSlib: rpns/code
 	$(MAKE) -C $@
@@ -33,8 +41,6 @@ matlib: mdbmth
 mdbcommon: SDDSlib fftpack matlib
 	$(MAKE) -C $@
 utils: mdbcommon
-	$(MAKE) -C $@
-$(DIRS):
 	$(MAKE) -C $@
 
 clean:

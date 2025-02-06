@@ -1,62 +1,23 @@
+include ../Makefile.rules
 
-# Detect OS and Architecture
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
-    OS := Windows
-endif
-
-# Default Compiler and Flags
-CC = gcc
-CCC = g++
-AR = ar rcs
-RANLIB = ranlib
-CFLAGS = -m64 -O3 -g -Wall -fPIC -I../include
-CCFLAGS = -m64 -O3 -g -Wall -fPIC -I../include
+CFLAGS += -I../include
+CCFLAGS += -I../include
 
 ifeq ($(OS), Linux)
-   CFLAGS += -fopenmp
-   CCFLAGS += -fopenmp
-   CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
-   ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-      CC = $(CUSTOM_GCC_PATH)/bin/gcc
-      CCC = $(CUSTOM_GCC_PATH)/bin/g++
-      AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
-      RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
-   endif
+  CFLAGS += -fopenmp
+  CCFLAGS += -fopenmp
 endif
 
-# Adjust for macOS
 ifeq ($(OS), Darwin)
-    CC = clang -Wno-deprecated-non-prototype
-    CCC = clang++
-    AR = libtool -static -o
-    RANLIB = ranlib
-    CFLAGS += -mmacosx-version-min=10.13
-    CCFLAGS += -mmacosx-version-min=10.13 -std=c++11 -m64 
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-    CCFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
-    CCFLAGS += -mcpu=native
-endif
-
-# Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-    CC = cl  # Use cl from Microsoft Visual Studio
-    CCC = cl  # Use cl from Microsoft Visual Studio
-    CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBMTH -I../include -openmp /wd4244
-    CCFLAGS = -EHsc -GR -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DEXPORT_MDBMTH -I../include -openmp
-    LINK = link -nologo -subsystem:windows -dll -LTCG -incremental:no -opt:ref -release -MACHINE:X64
+  CFLAGS += -DEXPORT_MDBMTH -openmp /wd4244
+  CCFLAGS += -DEXPORT_MDBMTH -openmp /wd4244
+  LIBRARY_LIBS = ../mdblib/$(OBJ_DIR)/mdblib.lib
 endif
 
-SRC = betai.c \
+LIBRARY_SRC = betai.c \
           bsODEp.c \
           complex.cc \
           counter.c \
@@ -106,40 +67,105 @@ SRC = betai.c \
           medianfilter.c \
           pointInsideContour.c
 
-ifeq ($(OS), Windows)
-  OBJ = $(SRC:.c=.obj)
-  OBJ := $(OBJ:.cc=.obj)
-  LIBRARY = mdbmth.lib
-  DLL = mdbmth.dll
-  EXP = mdbmth.exp
-else
-  OBJ = $(SRC:.c=.o)
-  OBJ := $(OBJ:.cc=.o)
-  LIBRARY = libmdbmth.a
-endif
+LIBRARY = mdbmth
 
-all: $(LIBRARY)
+include ../Makefile.build
 
-ifeq ($(OS), Windows)
-  $(LIBRARY): $(OBJ)
-	$(LINK) -out:$(DLL) -implib:$(LIBRARY) $(OBJ) ../mdblib/mdblib.lib
-  %.obj: %.c
-	$(CC) $(CFLAGS) -c $<
-  %.obj: %.cc
-	$(CCC) $(CCFLAGS) -c $<
-else
-  $(LIBRARY): $(OBJ)
-	$(AR) $(LIBRARY) $(OBJ)
-	$(RANLIB) $(LIBRARY)
-  %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-  %.o: %.cc
-	$(CCC) $(CCFLAGS) -c $< -o $@
-endif
-
-clean:
-	rm -f $(OBJ) $(LIBRARY) $(DLL) $(EXP)
-
-.PHONY: all clean
-
-
+$(OBJ_DIR)/betai.$(OBJEXT): betai.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/bsODEp.$(OBJEXT): bsODEp.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/complex.$(OBJEXT): complex.cc
+	$(CCC) $(CCFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/counter.$(OBJEXT): counter.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/dbessel.$(OBJEXT): dbessel.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/diffeqResDescrip.$(OBJEXT): diffeqResDescrip.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/dlaran.$(OBJEXT): dlaran.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/drand.$(OBJEXT): drand.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/elliptic.$(OBJEXT): elliptic.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/factorial.$(OBJEXT): factorial.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/factorize.$(OBJEXT): factorize.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/findMinMax.$(OBJEXT): findMinMax.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gammai.$(OBJEXT): gammai.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gaussQuad.$(OBJEXT): gaussQuad.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/GillMillerIntegration.$(OBJEXT): GillMillerIntegration.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gridopt.$(OBJEXT): gridopt.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/gy.$(OBJEXT): gy.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/halton.$(OBJEXT): halton.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/interp.$(OBJEXT): interp.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/ipow.$(OBJEXT): ipow.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/kstests.$(OBJEXT): kstests.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/k13.$(OBJEXT): k13.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/k23.$(OBJEXT): k23.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/lincorr.$(OBJEXT): lincorr.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/linfit.$(OBJEXT): linfit.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/logfile_gener.$(OBJEXT): logfile_gener.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/lsfBasisFns.$(OBJEXT): lsfBasisFns.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/makeHistogram.$(OBJEXT): makeHistogram.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/mcTable.$(OBJEXT): mcTable.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/median.$(OBJEXT): median.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/mmid.$(OBJEXT): mmid.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/moments.$(OBJEXT): moments.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/onedoptimize.$(OBJEXT): onedoptimize.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/poly.$(OBJEXT): poly.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/powellMin.$(OBJEXT): powellMin.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/qromb.$(OBJEXT): qromb.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rkODE.$(OBJEXT): rkODE.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rowmedian.$(OBJEXT): rowmedian.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/sigLevel.$(OBJEXT): sigLevel.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/simplex.$(OBJEXT): simplex.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/smooth.$(OBJEXT): smooth.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/topbase.$(OBJEXT): topbase.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/trapInteg.$(OBJEXT): trapInteg.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/wofz.$(OBJEXT): wofz.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zeroIH.$(OBJEXT): zeroIH.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zeroInterp.$(OBJEXT): zeroInterp.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/zeroNewton.$(OBJEXT): zeroNewton.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/medianfilter.$(OBJEXT): medianfilter.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/pointInsideContour.$(OBJEXT): pointInsideContour.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)

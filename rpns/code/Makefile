@@ -1,80 +1,28 @@
-# Detect OS and Architecture
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-ifeq ($(findstring CYGWIN, $(OS)),CYGWIN)
-    OS := Windows
-endif
+.NOTPARALLEL:
+DD = ../
+include ../../Makefile.rules
 
-# Common library search paths
-LIB_DIRS := /usr/lib /usr/lib64 /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu /lib /lib64 /opt/local/lib /sw/lib /usr/sfw/lib
-
-GSL_LIB = $(firstword $(wildcard \
-           $(addsuffix /libgsl.a, $(LIB_DIRS)) \
-           $(addsuffix /libgsl.so, $(LIB_DIRS)) \
-           $(addsuffix /libgsl.dylib, $(LIB_DIRS))))
-GSLCBLAS_LIB = $(firstword $(wildcard \
-              $(addsuffix /libgslcblas.a, $(LIB_DIRS)) \
-              $(addsuffix /libgslcblas.so, $(LIB_DIRS)) \
-              $(addsuffix /libgslcblas.dylib, $(LIB_DIRS))))
+CFLAGS += -I../../include
 
 ifeq ($(OS), Linux)
-  CC = gcc
-  CCC = g++
-  AR = ar rcs
-  RANLIB = ranlib
-  CFLAGS = -m64 -O3 -g -Wall -fPIC -DUSE_GSL -I../../include
-  LDFLAGS = -static-libstdc++ -rdynamic -m64
-  PROD_SYS_LIBS = $(GSL_LIB) $(GSLCBLAS_LIB) -lpthread -lm -lrt -ldl -lgcc
-  OBJEXT = o
-  LIBEXT = a
-  LIBPRE = lib
-  EXEEXT =
-
-  CUSTOM_GCC_PATH = /usr/local/oag/3rdParty/gcc-11.3.0
-  ifneq ($(wildcard $(CUSTOM_GCC_PATH)),)
-    CC = $(CUSTOM_GCC_PATH)/bin/gcc
-    CCC = $(CUSTOM_GCC_PATH)/bin/g++
-    AR = $(CUSTOM_GCC_PATH)/bin/gcc-ar -rc
-    RANLIB = $(CUSTOM_GCC_PATH)/bin/gcc-ranlib
-  endif
+  CFLAGS += -DUSE_GSL
+  PROD_SYS_LIBS := $(GSL_LIB) $(GSLCBLAS_LIB) $(Z_LIB) $(PROD_SYS_LIBS)
+  PROD_LIBS = -lrpnlib -lmdbmth -lmdblib 
 endif
 
 ifeq ($(OS), Darwin)
-  CC = clang
-  CCC = clang++
-  AR = libtool -static -o
-  RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -I../../include -I/opt/local/include -I/sw/include -I/usr/sfw/include
-  LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
-  PROD_SYS_LIBS = $(GSL_LIB) $(GSLCBLAS_LIB) -lm
-  OBJEXT = o
-  LIBEXT = a
-  LIBPRE = lib
-  EXEEXT =
+  CFLAGS += -DUSE_GSL
+  PROD_SYS_LIBS := $(GSL_LIB) $(GSLCBLAS_LIB) $(Z_LIB) $(PROD_SYS_LIBS)
+  PROD_LIBS = -lrpnlib -lmdbmth -lmdblib 
 endif
 
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
-endif
-
-# Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
-  CC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../../include /wd4244 /wd4267
-  LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
-  LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
-  OBJEXT = obj
-  LIBEXT = lib
-  LIBPRE =
-  EXEEXT = .exe
+  CFLAGS += -DEXPORT_RPNLIB /wd4244 /wd4267
+  LIBRARY_LIBS = ../../mdbmth/$(OBJ_DIR)/mdbmth.lib ../../mdblib/$(OBJ_DIR)/mdblib.lib
+  PROD_LIBS = rpnlib.lib  ../../mdbmth/$(OBJ_DIR)/mdbmth.lib ../../mdblib/$(OBJ_DIR)/mdblib.lib
 endif
 
-SOURCES = array.c \
+LIBRARY_SRC = array.c \
         conditional.c \
         execute.c \
         get_token_rpn.c \
@@ -94,52 +42,54 @@ SOURCES = array.c \
         stack.c \
         udf.c
 
-OBJS = $(SOURCES:.c=.$(OBJEXT))
+LIBRARY = rpnlib
 
-ifeq ($(OS), Windows)
-  LIBRARY = rpnlib.lib
-  DLL = rpnlib.dll
-  EXP = rpnlib.exp
-else
-  LIBRARY = librpnlib.a
-endif
+PROD = rpn rpnl if2pf
 
-PROGS = rpn rpnl if2pf
+include ../../Makefile.build
 
-all: $(LIBRARY) $(PROGS:%=%$(EXEEXT))
+$(OBJ_DIR)/array.$(OBJEXT): array.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/conditional.$(OBJEXT): conditional.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/execute.$(OBJEXT): execute.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/get_token_rpn.$(OBJEXT): get_token_rpn.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/infixtopostfix.$(OBJEXT): infixtopostfix.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/logical.$(OBJEXT): logical.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/math.$(OBJEXT): math.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/memory.$(OBJEXT): memory.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/pcode.$(OBJEXT): pcode.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/pop_push.$(OBJEXT): pop_push.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/prompt.$(OBJEXT): prompt.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_csh.$(OBJEXT): rpn_csh.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_data.$(OBJEXT): rpn_data.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_draw.$(OBJEXT): rpn_draw.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_error.$(OBJEXT): rpn_error.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_io.$(OBJEXT): rpn_io.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpn_sub.$(OBJEXT): rpn_sub.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/stack.$(OBJEXT): stack.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/udf.$(OBJEXT): udf.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 
-ifeq ($(OS), Windows)
-
-%$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
-	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib
-$(LIBRARY): $(OBJS)
-	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../../mdbmth/mdbmth.lib ../../mdblib/mdblib.lib
-rpn.obj: rpn.c
-	$(CC) $(CFLAGS) -c $<
-rpnl.obj: rpnl.c
-	$(CC) $(CFLAGS) -c $<
-if2pf.obj: if2pf.c
-	$(CC) $(CFLAGS) -c $<
-%.obj: %.c
-	$(CC) $(CFLAGS) -DEXPORT_RPNLIB  -c $<
-else
-%$(EXEEXT): %.$(OBJEXT) $(LIBRARY)
-	$(CCC) -o $@ $@.o $(LDFLAGS) -L. -L../../mdbmth -L../../mdblib -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
-$(LIBRARY): $(OBJS)
-	$(AR) $(LIBRARY) $(OBJS)
-	$(RANLIB) $(LIBRARY)
-rpn.o: rpn.c
-	$(CC) $(CFLAGS) -c $< -o $@
-rpnl.o: rpnl.c
-	$(CC) $(CFLAGS) -c $< -o $@
-if2pf.o: if2pf.c
-	$(CC) $(CFLAGS) -c $< -o $@
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-endif
-
-clean:
-	rm -f $(OBJS) $(LIBRARY) $(DLL) $(EXP) $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
-
-.PHONY: all clean
-
+$(OBJ_DIR)/rpn.$(OBJEXT): rpn.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/rpnl.$(OBJEXT): rpnl.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+$(OBJ_DIR)/if2pf.$(OBJEXT): if2pf.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)

@@ -1,20 +1,56 @@
-all: $(PROGS:%=%$(EXEEXT))
+PROD := $(patsubst %,$(OBJ_DIR)/%, $(PROD))
 
 ifeq ($(OS), Windows)
-OUTPUT =
+  DLL = $(LIBRARY:=.dll)
+  EXP = $(LIBRARY:=.exp)
+  LIBRARY := $(LIBRARY:=.lib)
+  DLL := $(patsubst %,$(OBJ_DIR)/%, $(DLL))
+  EXP := $(patsubst %,$(OBJ_DIR)/%, $(EXP))
 else
-OUTPUT = -o $@
+  LIBRARY := lib$(LIBRARY:=.a)
 endif
+LIBRARY := $(patsubst %,$(OBJ_DIR)/%, $(LIBRARY))
+
+LIBRARY_OBJS = $(LIBRARY_SRC:.c=.$(OBJEXT))
+LIBRARY_OBJS := $(LIBRARY_OBJS:.cc=.$(OBJEXT))
+LIBRARY_OBJS := $(LIBRARY_OBJS:.cpp=.$(OBJEXT))
+LIBRARY_OBJS := $(patsubst %,$(OBJ_DIR)/%, $(LIBRARY_OBJS))
+
+all: $(OBJ_DIR) $(BIN_DIR) $(LIBRARY) $(PROD:%=%$(EXEEXT))
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+$(OBJ_DIR):
+	mkdir $(OBJ_DIR)
 
 ifeq ($(OS), Windows)
 %$(EXEEXT): %.$(OBJEXT)
 	$(LINKEXE) -out:$@ $(@:.exe=.obj) $(PROD_LIBS)
+	cp -f $@ $(BIN_DIR)/
+ifeq ($(NO_DLL), 1)
+$(LIBRARY): $(LIBRARY_OBJS)
+	$(LINKLIB) -out:$(LIBRARY) $(LIBRARY_OBJS) $(LIBRARY_LIBS)
+	cp -f $@ $(BIN_DIR)/
+else
+$(LIBRARY): $(LIBRARY_OBJS)
+	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(LIBRARY_OBJS) $(LIBRARY_LIBS)
+	cp -f $@ $(BIN_DIR)/
+endif
+%.obj: %.c
+	$(CC) $(CFLAGS) -c $<
 else
 %$(EXEEXT): %.$(OBJEXT)
 	$(CCC) -o $@ $@.o $(LDFLAGS) $(LIB_LINK_DIRS) $(PROD_LIBS) $(PROD_SYS_LIBS)
+	cp -f $@ $(BIN_DIR)/
+$(LIBRARY): $(LIBRARY_OBJS)
+	$(AR) $(LIBRARY) $(LIBRARY_OBJS)
+	$(RANLIB) $(LIBRARY)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 endif
 
 clean:
-	rm -f $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
+	rm -rf $(OBJ_DIR) 
 
 .PHONY: all clean
