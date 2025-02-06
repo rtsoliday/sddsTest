@@ -54,7 +54,7 @@ endif
 ifeq ($(OS), Windows)
   CC = cl
   CCC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include -I../lzma
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include -I../lzma /wd4244 /wd4267
   LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
   OBJEXT = obj
   LIBEXT = lib
@@ -81,7 +81,7 @@ all: $(LIBRARY)
 ifeq ($(OS), Windows)
 
 $(LIBRARY): $(OBJS)
-	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS)
+	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../matlib/matlib.lib ../fftpack/fftpack.lib ../SDDSlib/SDDS1.lib ../mdbmth/mdbmth.lib ../mdblib/mdblib.lib
 %.obj: %.c
 	$(CC) $(CFLAGS) -DEXPORT_MDBCOMMON  -c $<
 else
