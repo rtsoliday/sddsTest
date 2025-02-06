@@ -10,7 +10,7 @@ ifeq ($(OS), Linux)
   CCC = g++
   AR = ar rcs
   RANLIB = ranlib
-  CFLAGS = -m64 -O3 -g -Wall -fPIC -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include
+  CFLAGS = -m64 -O3 -g -Wall -fPIC -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../lzma
   LDFLAGS = -static-libstdc++ -rdynamic -m64
   PROD_SYS_LIBS = -lpthread -lm -lrt -ldl -lgcc
   OBJEXT = o
@@ -32,7 +32,7 @@ ifeq ($(OS), Darwin)
   CCC = clang++
   AR = libtool -static -o
   RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include
+  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -DUSE_GSL -fno-common -mmacosx-version-min=10.13 -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../lzma
   LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
   PROD_SYS_LIBS = -lm
   OBJEXT = o
@@ -53,7 +53,7 @@ endif
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
   CC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DzLib -DALLOW_FILE_LOCKING=1 -DRPN_SUPPORT -I../include -I../lzma
   LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
   OBJEXT = obj
   LIBEXT = lib
