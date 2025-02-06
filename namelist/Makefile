@@ -65,6 +65,12 @@ $(OBJ_DIR)/namelist_pp.$(OBJEXT): namelist_pp.c
 $(OBJ_DIR)/scanargs.$(OBJEXT): scanargs.c
 	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 
-$(OBJ_DIR)/nlpp: $(OBJ_DIR)/namelist_pp.o $(OBJ_DIR)/scanargs.o $(LIBRARY)
-	$(CCC) -o $@ $(OBJ_DIR)/namelist_pp.o $(OBJ_DIR)/scanargs.o $(LDFLAGS) $(LIB_LINK_DIRS) $(PROD_LIBS) $(PROD_SYS_LIBS)
+ifeq ($(OS), Windows)
+$(OBJ_DIR)/nlpp$(EXEEXT): $(OBJ_DIR)/namelist_pp.$(OBJEXT) $(OBJ_DIR)/scanargs.$(OBJEXT) $(LIBRARY)
+	$(LINKEXE) -out:$@ $(OBJ_DIR)/namelist_pp.$(OBJEXT) $(OBJ_DIR)/scanargs.$(OBJEXT) $(PROD_LIBS) $(PROD_SYS_LIBS)
 	cp -f $@ $(BIN_DIR)/
+else
+$(OBJ_DIR)/nlpp$(EXEEXT): $(OBJ_DIR)/namelist_pp.$(OBJEXT) $(OBJ_DIR)/scanargs.$(OBJEXT) $(LIBRARY)
+	$(CCC) -o $@ $(OBJ_DIR)/namelist_pp.$(OBJEXT) $(OBJ_DIR)/scanargs.$(OBJEXT) $(LDFLAGS) $(LIB_LINK_DIRS) $(PROD_LIBS) $(PROD_SYS_LIBS)
+	cp -f $@ $(BIN_DIR)/
+endif

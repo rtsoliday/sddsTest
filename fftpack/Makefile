@@ -13,7 +13,7 @@ endif
 
 ifeq ($(OS), Windows)
   CFLAGS += -openmp -DEXPORT_FFTPACK /wd4244
-  CCFLAGS = -openmp -DEXPORT_FFTPACK /wd4244
+  CCFLAGS += -openmp -DEXPORT_FFTPACK /wd4244
   LIBRARY_LIBS = ../mdbmth/$(OBJ_DIR)/mdbmth.lib ../mdblib/$(OBJ_DIR)/mdblib.lib
 endif
 

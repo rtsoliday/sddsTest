@@ -1,3 +1,4 @@
+NO_DLL = 1
 include ../Makefile.rules
 
 CFLAGS += -I../include

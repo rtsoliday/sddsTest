@@ -17,9 +17,10 @@ ifeq ($(OS), Darwin)
 endif
 
 ifeq ($(OS), Windows)
-  CFLAGS += -DEXPORT_RPNLIB /wd4244 /wd4267
+  CFLAGS += /wd4244 /wd4267
+  LIBRARY_CFLAGS = -DEXPORT_RPNLIB
   LIBRARY_LIBS = ../../mdbmth/$(OBJ_DIR)/mdbmth.lib ../../mdblib/$(OBJ_DIR)/mdblib.lib
-  PROD_LIBS = rpnlib.lib  ../../mdbmth/$(OBJ_DIR)/mdbmth.lib ../../mdblib/$(OBJ_DIR)/mdblib.lib
+  PROD_LIBS = $(OBJ_DIR)/rpnlib.lib  ../../mdbmth/$(OBJ_DIR)/mdbmth.lib ../../mdblib/$(OBJ_DIR)/mdblib.lib
 endif
 
 LIBRARY_SRC = array.c \
@@ -49,43 +50,43 @@ PROD = rpn rpnl if2pf
 include ../../Makefile.build
 
 $(OBJ_DIR)/array.$(OBJEXT): array.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/conditional.$(OBJEXT): conditional.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/execute.$(OBJEXT): execute.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/get_token_rpn.$(OBJEXT): get_token_rpn.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/infixtopostfix.$(OBJEXT): infixtopostfix.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/logical.$(OBJEXT): logical.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/math.$(OBJEXT): math.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/memory.$(OBJEXT): memory.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/pcode.$(OBJEXT): pcode.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/pop_push.$(OBJEXT): pop_push.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/prompt.$(OBJEXT): prompt.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_csh.$(OBJEXT): rpn_csh.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_data.$(OBJEXT): rpn_data.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_draw.$(OBJEXT): rpn_draw.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_error.$(OBJEXT): rpn_error.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_io.$(OBJEXT): rpn_io.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/rpn_sub.$(OBJEXT): rpn_sub.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/stack.$(OBJEXT): stack.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 $(OBJ_DIR)/udf.$(OBJEXT): udf.c
-	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+	$(CC) $(CFLAGS) $(LIBRARY_CFLAGS) -c $< $(OUTPUT)
 
 $(OBJ_DIR)/rpn.$(OBJEXT): rpn.c
 	$(CC) $(CFLAGS) -c $< $(OUTPUT)

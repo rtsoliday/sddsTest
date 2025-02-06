@@ -14,7 +14,7 @@ endif
 
 ifeq ($(OS), Windows)
   CFLAGS += -I$(HDF_DIR)/include -DEXPORT_MDBCOMMON
-  PROD_LIBS = ../SDDSlib/$(OBJ_DIR)/SDDS1.lib ../mdbcommon/$(OBJ_DIR)/mdbcommon.lib ../mdbmth/$(OBJ_DIR)/mdbmth.lib ../mdblib/$(OBJ_DIR)/mdblib.lib ../zlib/z.lib $(HDF_DIR)/lib/libhdf5.lib $(HDF_DIR)/lib/libsz.lib $(HDF_DIR)/lib/libaec.lib 
+  PROD_LIBS = ../SDDSlib/$(OBJ_DIR)/SDDS1.lib ../mdbcommon/$(OBJ_DIR)/mdbcommon.lib ../mdbmth/$(OBJ_DIR)/mdbmth.lib ../mdblib/$(OBJ_DIR)/mdblib.lib ../zlib/$(OBJ_DIR)/z.lib $(HDF_DIR)/lib/libhdf5.lib $(HDF_DIR)/lib/libsz.lib $(HDF_DIR)/lib/libaec.lib 
 endif
 
 PROD = editstring replaceText isFileLocked hdf2sdds sdds2hdf

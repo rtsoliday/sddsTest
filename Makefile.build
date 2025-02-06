@@ -2,8 +2,8 @@ PROD := $(patsubst %,$(OBJ_DIR)/%, $(PROD))
 
 ifneq ($(LIBRARY),)
 ifeq ($(OS), Windows)
-  DLL = $(LIBRARY:=.dll)
-  EXP = $(LIBRARY:=.exp)
+  DLL = $(LIBRARY:.lib=.dll)
+  EXP = $(LIBRARY:.lib=.exp)
   LIBRARY := $(LIBRARY:=.lib)
   DLL := $(patsubst %,$(OBJ_DIR)/%, $(DLL))
   EXP := $(patsubst %,$(OBJ_DIR)/%, $(EXP))
@@ -28,16 +28,15 @@ $(OBJ_DIR):
 
 ifeq ($(OS), Windows)
 %$(EXEEXT): %.$(OBJEXT)
-	$(LINKEXE) -out:$@ $(@:.exe=.obj) $(PROD_LIBS)
+	$(LINKEXE) -out:$@ $(@:.exe=.obj) $(PROD_LIBS) $(PROD_SYS_LIBS)
 	cp -f $@ $(BIN_DIR)/
 ifeq ($(NO_DLL), 1)
 $(LIBRARY): $(LIBRARY_OBJS)
 	$(LINKLIB) -out:$(LIBRARY) $(LIBRARY_OBJS) $(LIBRARY_LIBS)
-	cp -f $@ $(BIN_DIR)/
 else
 $(LIBRARY): $(LIBRARY_OBJS)
 	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(LIBRARY_OBJS) $(LIBRARY_LIBS)
-	cp -f $@ $(BIN_DIR)/
+	cp -f $(DLL) $(BIN_DIR)/
 endif
 %.obj: %.c
 	$(CC) $(CFLAGS) -c $<
@@ -53,6 +52,6 @@ $(LIBRARY): $(LIBRARY_OBJS)
 endif
 
 clean:
-	rm -rf $(OBJ_DIR) 
+	rm -rf $(OBJ_DIR)
 
 .PHONY: all clean
