@@ -35,6 +35,9 @@ GSLCBLAS_LIB = $(firstword $(wildcard \
               $(addsuffix /libgslcblas.a, $(LIB_DIRS))))
 
 EXTRA_INC_DIRS = $(sort $(dir $(filter-out ,$(Z_LIB) $(LZMA_LIB) $(HDF5_LIB) $(SZ_LIB) $(GSL_LIB) $(GSLCBLAS_LIB))))
+EXTRA_INC_DIRS := $(patsubst %/lib64/,%/include, $(EXTRA_INC_DIRS))
+EXTRA_INC_DIRS := $(patsubst %/x86_64-linux-gnu/,%/include, $(EXTRA_INC_DIRS))
+EXTRA_INC_DIRS := $(patsubst %/lib/,%/include, $(EXTRA_INC_DIRS))
 EXTRA_INC_DIRS := $(patsubst %,-I%, $(EXTRA_INC_DIRS))
 
 LIB_LINK_DIRS = -L. -L../mdbcommon -L../SDDSlib -L../rpns/code -L../mdbmth -L../mdblib
@@ -65,8 +68,9 @@ ifeq ($(OS), Darwin)
   CCC = clang++
   AR = libtool -static -o
   RANLIB = ranlib
-  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -fno-common -mmacosx-version-min=10.13 $(EXTRA_INC_DIRS)
-  LDFLAGS = -mmacosx-version-min=10.13 -std=c++11
+  #MAC_VERSION = -mmacosx-version-min=10.13
+  CFLAGS = -Wno-deprecated-non-prototype -m64 -O3 -g -Wall -fPIC -fno-common $(MAC_VERSION) $(EXTRA_INC_DIRS)
+  LDFLAGS = $(MAC_VERSION) -std=c++11
   PROD_SYS_LIBS = -lm
   OBJEXT = o
   LIBEXT = a
