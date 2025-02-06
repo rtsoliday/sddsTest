@@ -10,6 +10,7 @@ DIRS += SDDSlib
 DIRS += fftpack
 DIRS += matlib
 DIRS += mdbcommon
+DIRS += utils
 
 .PHONY: all $(DIRS) clean
 
@@ -31,6 +32,8 @@ matlib: mdbmth
 	$(MAKE) -C $@
 mdbcommon: SDDSlib fftpack matlib
 	$(MAKE) -C $@
+utils: mdbcommon
+	$(MAKE) -C $@
 $(DIRS):
 	$(MAKE) -C $@
 
@@ -47,4 +50,5 @@ clean:
 	$(MAKE) -C fftpack clean
 	$(MAKE) -C matlib clean
 	$(MAKE) -C mdbcommon clean
+	$(MAKE) -C utils clean
 
