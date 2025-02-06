@@ -6,6 +6,13 @@ else
 OUTPUT = -o $@
 endif
 
+ifeq ($(OS), Windows)
+%$(EXEEXT): %.$(OBJEXT)
+	$(LINKEXE) -out:$@ $(@:.exe=.obj) $(PROD_LIBS)
+else
+%$(EXEEXT): %.$(OBJEXT)
+	$(CCC) -o $@ $@.o $(LDFLAGS) $(LIB_LINK_DIRS) $(PROD_LIBS) $(PROD_SYS_LIBS)
+endif
 
 clean:
 	rm -f $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))

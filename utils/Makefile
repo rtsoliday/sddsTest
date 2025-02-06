@@ -1,7 +1,5 @@
 include ../Makefile.rules
 
-$(info CC $(CC))
-
 CFLAGS += -DH5_USE_16_API -I../include
 
 ifeq ($(OS), Linux)
@@ -24,8 +22,13 @@ PROGS = editstring replaceText isFileLocked hdf2sdds sdds2hdf
 include ../Makefile.build
 
 editstring.$(OBJEXT): editstring.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 replaceText.$(OBJEXT): replaceText.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 isFileLocked.$(OBJEXT): isFileLocked.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 hdf2sdds.$(OBJEXT): hdf2sdds.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 sdds2hdf.$(OBJEXT): sdds2hdf.c
 	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+
