@@ -53,6 +53,15 @@ ifeq ($(OS), Darwin)
   EXEEXT =
 endif
 
+# Adjust for Architecture
+ifeq ($(ARCH), x86_64)
+    CFLAGS += -mtune=generic
+endif
+
+ifeq ($(ARCH), arm64)
+    CFLAGS += -mcpu=native
+endif
+
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
   CC = cl
@@ -63,15 +72,6 @@ ifeq ($(OS), Windows)
   LIBEXT = lib
   LIBPRE =
   EXEEXT = .exe
-endif
-
-# Adjust for Architecture
-ifeq ($(ARCH), x86_64)
-    CFLAGS += -mtune=generic
-endif
-
-ifeq ($(ARCH), arm64)
-    CFLAGS += -mcpu=native
 endif
 
 SOURCES = array.c \
