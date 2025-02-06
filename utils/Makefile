@@ -72,9 +72,10 @@ endif
 
 # Adjust for Windows in a cygwin terminal
 ifeq ($(OS), Windows)
+  HDF_DIR = c:/HDF5/1.12.1
   CC = cl
   CCC = cl
-  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DH5_USE_16_API -I../include -I../lzma
+  CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -DH5_USE_16_API -I../include -I../lzma -I$(HDF_DIR)/include
   LINKEXE = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64
   OBJEXT = obj
   LIBEXT = lib
@@ -87,23 +88,24 @@ PROGS = editstring replaceText isFileLocked hdf2sdds sdds2hdf
 all: $(PROGS:%=%$(EXEEXT))
 
 ifeq ($(OS), Windows)
-
+OUTPUT =
 %$(EXEEXT): %.$(OBJEXT)
-	$(LINKEXE) -out:$@ $(@:.exe=.obj) rpnlib.lib ../../mdblib/mdblib.lib
+	$(LINKEXE) -out:$@ $(@:.exe=.obj) ../SDDSlib/SDDS1.lib ../mdbcommon/mdbcommon.lib ../mdbmth/mdbmth.lib ../mdblib/mdblib.lib ../zlib/z.lib $(HDF_DIR)/lib/libhdf5.lib $(HDF_DIR)/lib/libsz.lib $(HDF_DIR)/lib/libaec.lib 
 else
+OUTPUT = -o $@
 %$(EXEEXT): %.$(OBJEXT)
 	$(CCC) -o $@ $@.o $(LDFLAGS) -L. -L../mdbcommon -L../SDDSlib -L../rpns/code -L../mdbmth -L../mdblib -lmdbcommon -lSDDS1 -lrpnlib -lmdbmth -lmdblib $(PROD_SYS_LIBS)
-editstring.o: editstring.c
-	$(CC) $(CFLAGS) -c $< -o $@
-replaceText.o: replaceText.c
-	$(CC) $(CFLAGS) -c $< -o $@
-isFileLocked.o: isFileLocked.c
-	$(CC) $(CFLAGS) -c $< -o $@
-hdf2sdds.o: hdf2sdds.c
-	$(CC) $(CFLAGS) -c $< -o $@
-sdds2hdf.o: sdds2hdf.c
-	$(CC) $(CFLAGS) -c $< -o $@
 endif
+editstring.$(OBJEXT): editstring.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+replaceText.$(OBJEXT): replaceText.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+isFileLocked.$(OBJEXT): isFileLocked.c
+	$(CC) $(CFLAGS) -c $< $(OUPUT)
+hdf2sdds.$(OBJEXT): hdf2sdds.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
+sdds2hdf.$(OBJEXT): sdds2hdf.c
+	$(CC) $(CFLAGS) -c $< $(OUTPUT)
 
 clean:
 	rm -f $(PROGS:%=%$(EXEEXT)) $(PROGS:%=%.$(OBJEXT))
