@@ -71,7 +71,6 @@ SOURCES = fmat.c m_add.c m_alloc.c \
 
 OBJS = $(SOURCES:.c=.$(OBJEXT))
 ifeq ($(OS), Windows)
-  OBJS = $(SOURCES:.c=.obj)
   LIBRARY = matlib.lib
   DLL = matlib.dll
   EXP = matlib.exp
