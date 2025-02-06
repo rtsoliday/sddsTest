@@ -55,7 +55,7 @@ ifeq ($(OS), Windows)
   CC = cl
   CCC = cl
   CFLAGS = -nologo -FC -D__STDC__=0 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ox -GL -Oy- -W3 -MD -I../include /wd4244
-  LINKLIB = lib -nologo
+  LINKDLL = link -nologo -LTCG -incremental:no -opt:ref -release -MACHINE:X64 -subsystem:windows -dll
   OBJEXT = obj
   LIBEXT = lib
   LIBPRE =
@@ -73,6 +73,8 @@ OBJS = $(SOURCES:.c=.$(OBJEXT))
 ifeq ($(OS), Windows)
   OBJS = $(SOURCES:.c=.obj)
   LIBRARY = matlib.lib
+  DLL = matlib.dll
+  EXP = matlib.exp
 else
   LIBRARY = libmatlib.a
 endif
@@ -82,7 +84,7 @@ all: $(LIBRARY)
 ifeq ($(OS), Windows)
 
 $(LIBRARY): $(OBJS)
-	$(LINKLIB) -out:$(LIBRARY) $(OBJS)
+	$(LINKDLL) -out:$(DLL) -implib:$(LIBRARY) $(OBJS) ../mdbmth/mdbmth.lib ../mdblib/mdblib.lib
 %.obj: %.c
 	$(CC) $(CFLAGS) -DEXPORT_MATLIB  -c $<
 else
@@ -94,7 +96,7 @@ $(LIBRARY): $(OBJS)
 endif
 
 clean:
-	rm -f $(OBJS) $(LIBRARY)
+	rm -f $(OBJS) $(LIBRARY) $(DLL) $(EXP)
 
 .PHONY: all clean
 
